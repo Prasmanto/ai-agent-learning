@@ -14,6 +14,7 @@ env/
 .vscode/
 .idea/
 
-# Data caches
+# Data caches + runtime artifacts
 data/chroma/
+data/memory.json
 *.sqlite3
