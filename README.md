@@ -51,12 +51,19 @@ Each lesson is a **single Python file** you can run. Every file is heavily comme
 | 1 | `lessons/01_hello_llm.py` | What an LLM is. One prompt in, one answer out. |
 | 2 | `lessons/02_llm_with_tool.py` | How to give the LLM a tool (a crypto price function) and let it call that tool. |
 | 3 | `lessons/03_agent_loop.py` | The real agent: the LLM decides which tool to call, possibly many times, until it answers. |
-| 4 | *(coming next)* | Multi-tool agent: price + news + on-chain wallet lookup. |
-| 5 | *(coming next)* | RAG: teach the agent from crypto whitepapers/PDFs. |
-| 6 | *(coming next)* | Memory: the agent remembers past conversations. |
-| 7 | *(coming next)* | A small web UI (Streamlit) to chat with your agent. |
+| 4 | `lessons/04_multi_tool_agent.py` | Multi-tool agent: live price + crypto news + on-chain ETH wallet balance (web3.py). |
+| 5 | `lessons/05_rag_knowledge_base.py` | RAG: embed local markdown docs into a Chroma vector DB and let the agent search them. |
+| 6 | `lessons/06_memory.py` | Short-term conversation memory + long-term facts that survive restarts. |
+| 7 | `lessons/07_streamlit_ui.py` | Chat UI that combines everything: tools + RAG + memory in a browser. |
 
-> Lessons 1–3 are included now. Run them, understand them, then ping me and I'll add 4–7.
+### What's where
+
+```
+lessons/          one Python file per lesson, runnable on its own
+data/knowledge/   markdown primers used by lesson 5's RAG index
+data/chroma/      auto-created local vector DB (gitignored)
+data/memory.json  auto-created long-term fact store for lesson 6 (gitignored)
+```
 
 ---
 
@@ -135,12 +142,39 @@ If you see the model reply with text, you're set. 🎉
 
 ---
 
-## After you finish lessons 1–3
+## Running the later lessons
 
-Tell Kiro "I'm done with lesson 3" and I'll add:
-- Lesson 4: multi-tool agent (price + news + wallet balance)
-- Lesson 5: RAG over the Bitcoin + Ethereum whitepapers
-- Lesson 6: persistent memory across conversations
-- Lesson 7: a tiny Streamlit chat UI
+```bash
+# Lesson 4 — multi-tool agent
+python lessons/04_multi_tool_agent.py
+
+# Lesson 5 — first run embeds the docs into data/chroma/ (takes a few seconds)
+python lessons/05_rag_knowledge_base.py
+
+# Lesson 6 — interactive chatbot with persistent memory
+python lessons/06_memory.py
+
+# Lesson 7 — browser chat UI combining everything
+streamlit run lessons/07_streamlit_ui.py
+```
+
+## Run your agent 24/7 on a VPS
+
+Once you're comfortable with lesson 7, you can host the chat UI on a tiny
+Ubuntu VPS so it stays online for you and your friends. Step-by-step guide:
+**[`deploy/VPS_SETUP.md`](./deploy/VPS_SETUP.md)**.
+
+## Where to go after lesson 7
+
+You now have the mental model to read any framework's docs and understand
+what it's actually doing. Natural next steps:
+
+- **Swap models**: try `gpt-4o` for tougher reasoning; Anthropic Claude or
+  a local Llama via Ollama for privacy/cost.
+- **More tools**: DeFiLlama TVL, Etherscan tx history, Dune Analytics SQL.
+- **Evals**: a small test set of Q&A pairs you run nightly to catch
+  regressions when prompts or models change.
+- **A framework** — but only after you've hit a wall without one.
+  LangGraph for branching/parallel tool use; CrewAI for multi-agent teams.
 
 Happy hacking.
