@@ -158,6 +158,12 @@ python lessons/06_memory.py
 streamlit run lessons/07_streamlit_ui.py
 ```
 
+## Run your agent 24/7 on a VPS
+
+Once you're comfortable with lesson 7, you can host the chat UI on a tiny
+Ubuntu VPS so it stays online for you and your friends. Step-by-step guide:
+**[`deploy/VPS_SETUP.md`](./deploy/VPS_SETUP.md)**.
+
 ## Where to go after lesson 7
 
 You now have the mental model to read any framework's docs and understand

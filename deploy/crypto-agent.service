@@ -1,0 +1,54 @@
+[Unit]
+# Tell systemd what this service is and when to start it.
+Description=Crypto Research Agent (Streamlit UI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Run as the non-root user created during setup. If you used a different
+# username than "kiro", replace every "kiro" below with your real username.
+User=kiro
+Group=kiro
+
+# Where the repo lives on the server.
+WorkingDirectory=/home/kiro/ai-agent-learning
+
+# Load OPENAI_API_KEY and other secrets from the .env file. systemd does
+# NOT parse shell-style exports, so .env must be plain KEY=VALUE lines
+# (which is exactly what .env.example provides).
+EnvironmentFile=/home/kiro/ai-agent-learning/.env
+
+# The actual command. We use the venv's Python directly so we don't have
+# to `source .venv/bin/activate` first.
+#   --server.address=0.0.0.0     → accept connections from outside, not just localhost
+#   --server.port=8501           → the port we opened in the firewall
+#   --server.headless=true       → don't try to open a browser on the server
+#   --browser.gatherUsageStats=false → no telemetry prompts
+ExecStart=/home/kiro/ai-agent-learning/.venv/bin/streamlit run \
+    /home/kiro/ai-agent-learning/lessons/07_streamlit_ui.py \
+    --server.address=0.0.0.0 \
+    --server.port=8501 \
+    --server.headless=true \
+    --browser.gatherUsageStats=false
+
+# If the agent crashes, wait 10 seconds then restart. This is the "always
+# online" guarantee: network blips, OpenAI timeouts, or accidental errors
+# won't take the service down permanently.
+Restart=on-failure
+RestartSec=10
+
+# Stream stdout/stderr into journald so you can read them with
+#   sudo journalctl -u crypto-agent -f
+StandardOutput=journal
+StandardError=journal
+
+# Minor hardening — limit the damage a compromised process can do.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+
+[Install]
+# Start this service automatically when the server boots into multi-user
+# mode (which is every normal boot).
+WantedBy=multi-user.target
