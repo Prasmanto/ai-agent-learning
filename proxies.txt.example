@@ -1,0 +1,12 @@
+# Proxy format examples
+# Format 1: host:port:username:password
+proxy1.example.com:8080:myusername:mypassword
+proxy2.example.com:3128:user123:pass456
+
+# Format 2: host:port (for proxies without authentication)
+127.0.0.1:8888
+192.168.1.100:3128
+
+# You can mix both formats in the same file
+# Remove the # symbols to activate the proxies
+# One proxy per line
