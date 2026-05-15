@@ -16,6 +16,20 @@ from typing import Optional, Dict, Any, List
 # Configuration
 API = "https://unixpunks.xyz/api"
 PROXIES_FILE = "proxies.txt"
+
+# Built-in proxies (used if no proxies.txt file found)
+BUILT_IN_PROXIES = [
+    "142.111.48.253:7030:pudowlmy:b4o4d06k717e",
+    "23.95.150.145:6114:pudowlmy:b4o4d06k717e",
+    "45.38.107.97:6014:pudowlmy:b4o4d06k717e",
+    "38.154.203.95:5863:pudowlmy:b4o4d06k717e",
+    "198.23.243.226:6361:pudowlmy:b4o4d06k717e",
+    "84.247.60.125:6095:pudowlmy:b4o4d06k717e",
+    "104.239.107.47:5699:pudowlmy:b4o4d06k717e",
+    "23.27.208.120:5830:pudowlmy:b4o4d06k717e",
+    "23.229.19.94:8689:pudowlmy:b4o4d06k717e",
+    "2.57.20.2:6983:pudowlmy:b4o4d06k717e",
+]
 DEFAULT_DELAY_MS = 200
 REQUEST_TIMEOUT = 10
 MAX_ATTEMPTS = 50000
@@ -29,36 +43,40 @@ class UnixPunksHunter:
         self.attempt_count = 0
 
     def load_proxies(self) -> None:
-        """Load proxies from proxies.txt file"""
+        """Load proxies from proxies.txt file or use built-in proxies"""
+        raw_proxies = []
+
+        # Try loading from file first
         try:
             if os.path.exists(PROXIES_FILE):
                 with open(PROXIES_FILE, 'r', encoding='utf-8') as f:
                     raw_proxies = [line.strip() for line in f if line.strip() and not line.strip().startswith("#")]
-
-                for proxy_line in raw_proxies:
-                    parts = proxy_line.split(":")
-                    if len(parts) >= 4:
-                        host, port, user, pw = parts[0], parts[1], parts[2], ":".join(parts[3:])
-                        proxy_url = f"http://{user}:{pw}@{host}:{port}"
-                    else:
-                        proxy_url = f"http://{proxy_line}"
-
-                    self.proxies.append({
-                        "http": proxy_url,
-                        "https": proxy_url
-                    })
-                print(f"  Loaded {len(self.proxies)} proxies from {PROXIES_FILE}")
-            else:
-                print(f"  No {PROXIES_FILE} found - running without proxies")
-
+                if raw_proxies:
+                    print(f"  Loaded {len(raw_proxies)} proxies from {PROXIES_FILE}")
         except Exception as e:
-            print(f"  Error loading proxies: {e}")
-            print("  Continuing without proxies...")
+            print(f"  Error loading {PROXIES_FILE}: {e}")
+
+        # Fall back to built-in proxies if no file found
+        if not raw_proxies:
+            raw_proxies = BUILT_IN_PROXIES
+            print(f"  Using {len(raw_proxies)} built-in proxies")
+
+        # Parse proxy format
+        for proxy_line in raw_proxies:
+            parts = proxy_line.split(":")
+            if len(parts) >= 4:
+                host, port, user, pw = parts[0], parts[1], parts[2], ":".join(parts[3:])
+                proxy_url = f"http://{user}:{pw}@{host}:{port}"
+            else:
+                proxy_url = f"http://{proxy_line}"
+
+            self.proxies.append({
+                "http": proxy_url,
+                "https": proxy_url
+            })
 
         if self.proxies:
-            first_proxy = self.proxies[0]['http']
-            masked = first_proxy[:60] + "..." if len(first_proxy) > 60 else first_proxy
-            print(f"  First proxy: {masked}")
+            print(f"  Total proxies ready: {len(self.proxies)}")
         else:
             print("  Running in DIRECT mode (no proxies)")
         print()
